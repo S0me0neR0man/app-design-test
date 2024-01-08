@@ -40,8 +40,9 @@ func NewWebApp(
 	connectionsSem := semaphore.NewWeighted(MaxRateLimit)
 	limiterMW := middleware.RateLimit{ConnectionsSem: connectionsSem}.Next
 
-	app.router.Use(limiterMW)
 	app.router.Use(middleware.WriteMetrics)
+	app.router.Use(limiterMW)
+	app.router.Use(middleware.TokenParse)
 
 	ordersPath := OrdersPrefix
 	userOrdersPath := ordersPath + "/{id}/"
