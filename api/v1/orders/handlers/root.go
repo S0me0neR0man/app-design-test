@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -62,7 +63,6 @@ func (h *OrderHandlers) GetByUserId(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 }
 
@@ -75,13 +75,17 @@ func (h *OrderHandlers) Post(w http.ResponseWriter, r *http.Request) {
 	var order entities.Order
 	err := json.NewDecoder(r.Body).Decode(&order)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		msg := fmt.Sprintf("%s %v: %s", r.Method, r.URL, err.Error())
+		h.logger.Println(msg)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
 	order, err = h.controllers.OrderPost(r.Context(), order)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		msg := fmt.Sprintf("%s %v: %s", r.Method, r.URL, err.Error())
+		h.logger.Println(msg)
+		http.Error(w, msg, http.StatusBadRequest)
 		return
 	}
 
@@ -98,6 +102,5 @@ func (h *OrderHandlers) Post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 }
